@@ -126,7 +126,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Sending the APKs off to their new home! 🏠"
-          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*.apk; do
+          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed*.apk; do
             gh release upload "build-${{ github.run_number }}" "$apk"
           done
 
