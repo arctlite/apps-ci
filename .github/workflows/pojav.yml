@@ -47,7 +47,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Looking for previous build info... 🕵️‍♂️"
+          echo "Looking for previous build info..."
           gh release download --repo arctlite/apps-ci --pattern "commit_hash.txt" --dir ./release_info || echo "No previous build info found! Starting fresh. 🌱"
 
           if [ -f ./release_info/commit_hash.txt ]; then
@@ -94,6 +94,7 @@ jobs:
           ../scripts/pojav/build_apks.sh
           echo "APKs built to perfection! 🏗️✨"
 
+      # 🖋️ Sign the APKs with care
       - name: "🖋️ Sign APKs"
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
@@ -105,14 +106,19 @@ jobs:
           ../scripts/pojav/sign_apks.sh
           echo "Signed, sealed, and ready to deliver! 📜📦"
 
+      # 📦 Create a GitHub release with a unique tag per app
       - name: "📦 Create GitHub Release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Crafting a release package... 🎁"
-          gh release create "build-${{ github.run_number }}" \
-            --title "Build #${{ github.run_number }}" \
-            --notes "✨ Automated build of PojavLauncher. ✨
+          APP_NAME="pojavlauncher"
+          TAG_NAME="${APP_NAME}-${{ env.CURRENT_COMMIT_HASH:0:7 }}" # Shortened commit hash
+          echo "Using tag: $TAG_NAME"
+
+          # Create the release with the custom tag
+          gh release create "$TAG_NAME" \
+            --title "${APP_NAME} Build (${TAG_NAME})" \
+            --notes "✨ Automated build of ${APP_NAME}. ✨
 
             **Commit Details**
             - **Hash**: ${{ env.CURRENT_COMMIT_HASH }}
@@ -121,24 +127,27 @@ jobs:
             - **Date**: ${{ env.CURRENT_COMMIT_DATE }}" \
             --target main
 
+      # 📤 Upload APKs to the release
       - name: "📤 Upload Each APK to Release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Sending the APKs off to their new home! 🏠"
-          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed*.apk; do
-            gh release upload "build-${{ github.run_number }}" "$apk"
+          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed.apk; do
+            gh release upload "pojavlauncher-${{ env.CURRENT_COMMIT_HASH:0:7 }}" "$apk"
           done
 
+      # 📤 Upload commit hash info to the release
       - name: "📤 Upload Commit Hash to Release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Saving the commit hash for posterity. 📖"
           echo ${{ env.CURRENT_COMMIT_HASH }} > commit_hash.txt
-          gh release upload "build-${{ github.run_number }}" "commit_hash.txt"
+          gh release upload "pojavlauncher-${{ env.CURRENT_COMMIT_HASH:0:7 }}" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
 
+      # 📤 Sharing the Results (Discord)
       - name: "📤 Sharing the Results (Discord)"
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
