@@ -125,8 +125,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Sending the APKs off to their new home! 🏠"
-          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed*.apk; do
-            gh release upload "build-${{ github.run_number }}" "$apk"
+          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed.apk; do
+            gh release upload "pojav-build-${{ github.run_number }}" "$apk"
           done
 
       - name: "📤 Upload Commit Hash to Release"
@@ -135,7 +135,7 @@ jobs:
         run: |
           echo "Saving the commit hash for posterity. 📖"
           echo ${{ env.CURRENT_COMMIT_HASH }} > commit_hash.txt
-          gh release upload "build-${{ github.run_number }}" "commit_hash.txt"
+          gh release upload "pojav-build-${{ github.run_number }}" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
 
       - name: "📤 Sharing the Results (Discord)"
