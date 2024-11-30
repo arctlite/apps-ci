@@ -78,7 +78,7 @@ jobs:
 
       # 🛠️ Prepare the workspace with the Android SDK
       - name: "🛠️ Setting Up the Toolshed (Android SDK)"
-        run: ./scripts/pojav/setup_sdk.sh
+        run: ./scripts/setup_sdk.sh
 
       # ✂️ Apply patches to make everything smooth
       - name: "✂️ Apply Patches"
