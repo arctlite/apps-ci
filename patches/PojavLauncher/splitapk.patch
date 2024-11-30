@@ -1,0 +1,20 @@
+diff --git a/app_pojavlauncher/build.gradle b/app_pojavlauncher/build.gradle
+index 3654bba..7f47087 100644
+--- a/app_pojavlauncher/build.gradle
++++ b/app_pojavlauncher/build.gradle
+@@ -96,6 +96,15 @@ android {
+         abortOnError false
+     }
+ 
++    splits {
++    	abi {
++		enable true
++		reset()
++		include 'arm64-v8a', 'armeabi-v7a'
++		universalApk false
++	}
++}
++
+     signingConfigs {
+         customDebug {
+             storeFile file("debug.keystore")
