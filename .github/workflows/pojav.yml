@@ -47,7 +47,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Looking for previous build info..."
+          echo "Looking for previous build info... 🕵️‍♂️"
           gh release download --repo arctlite/apps-ci --pattern "commit_hash.txt" --dir ./release_info || echo "No previous build info found! Starting fresh. 🌱"
 
           if [ -f ./release_info/commit_hash.txt ]; then
@@ -112,7 +112,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           APP_NAME="pojavlauncher"
-          TAG_NAME="${APP_NAME}-${{ env.CURRENT_COMMIT_HASH:0:7 }}" # Shortened commit hash
+          SHORT_COMMIT_HASH=${CURRENT_COMMIT_HASH:0:7}
+          TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}" # Shortened commit hash
           echo "Using tag: $TAG_NAME"
 
           # Create the release with the custom tag
@@ -121,10 +122,10 @@ jobs:
             --notes "✨ Automated build of ${APP_NAME}. ✨
 
             **Commit Details**
-            - **Hash**: ${{ env.CURRENT_COMMIT_HASH }}
-            - **Message**: ${{ env.CURRENT_COMMIT_MSG }}
-            - **Author**: ${{ env.CURRENT_COMMIT_AUTHOR }}
-            - **Date**: ${{ env.CURRENT_COMMIT_DATE }}" \
+            - **Hash**: $CURRENT_COMMIT_HASH
+            - **Message**: $CURRENT_COMMIT_MSG
+            - **Author**: $CURRENT_COMMIT_AUTHOR
+            - **Date**: $CURRENT_COMMIT_DATE" \
             --target main
 
       # 📤 Upload APKs to the release
@@ -134,7 +135,7 @@ jobs:
         run: |
           echo "Sending the APKs off to their new home! 🏠"
           for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed.apk; do
-            gh release upload "pojavlauncher-${{ env.CURRENT_COMMIT_HASH:0:7 }}" "$apk"
+            gh release upload "$TAG_NAME" "$apk"
           done
 
       # 📤 Upload commit hash info to the release
@@ -143,8 +144,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Saving the commit hash for posterity. 📖"
-          echo ${{ env.CURRENT_COMMIT_HASH }} > commit_hash.txt
-          gh release upload "pojavlauncher-${{ env.CURRENT_COMMIT_HASH:0:7 }}" "commit_hash.txt"
+          echo $CURRENT_COMMIT_HASH > commit_hash.txt
+          gh release upload "$TAG_NAME" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
 
       # 📤 Sharing the Results (Discord)
