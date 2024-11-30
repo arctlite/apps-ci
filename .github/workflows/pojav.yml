@@ -1,7 +1,6 @@
 name: "Build PojavLauncher Daily ☀️"
 
 on:
-  # A daily dose of progress and positivity 🌸
   schedule:
     - cron: '0 0 * * *'  # A new day, a new adventure! 🌅
   # For those who can't wait—just press the button! 🎉
@@ -110,7 +109,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Crafting a release package... 🎁"
-          gh release create "build-${{ github.run_number }}" \
+          gh release create "pojav-build-${{ github.run_number }}" \
             --title "Build #${{ github.run_number }}" \
             --notes "✨ Automated build of PojavLauncher. ✨
 
