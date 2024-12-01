@@ -71,8 +71,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yml
-          path: pojav/app_pojavlauncher/src/main/assets/components/jre-n
-ew                                                                          workflow_conclusion: success
+          path: pojav/app_pojavlauncher/src/main/assets/components/jre-new                                                                          workflow_conclusion: success
           repo: PojavLauncherTeam/android-openjdk-build-multiarch           branch: buildjre17-21
           name: jre17-pojav
 
