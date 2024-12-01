@@ -57,6 +57,44 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Get JRE 8
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          path: pojav/app_pojavlauncher/src/main/assets/components/jre
+          workflow_conclusion: success
+          repo: PojavLauncherTeam/android-openjdk-build-multiarch
+          branch: buildjre8
+          name: jre8-pojav
+
+      - name: Get JRE17
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          path: pojav/app_pojavlauncher/src/main/assets/components/jre-n
+ew                                                                          workflow_conclusion: success
+          repo: PojavLauncherTeam/android-openjdk-build-multiarch           branch: buildjre17-21
+          name: jre17-pojav
+
+      - name: Get JRE21                                                   uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          path: pojav/app_pojavlauncher/src/main/assets/components/jre-21
+          workflow_conclusion: success                                      repo: PojavLauncherTeam/android-openjdk-build-multiarch
+          branch: buildjre17-21
+          name: jre21-pojav
+
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 7.6.1
+
+      - name: "⚒️ Build JRE JAR files"
+        run: |
+          cd pojav
+          ./scripts/languagelist_updater.sh
+                                                                            mkdir out
+          # Build JRE JAR files (security manager, etc...)                  gradle :jre_lwjgl3glfw:build --no-daemon
+
       - name: "🛠️ Setting Up the Toolshed (Android SDK)"
         run: ./scripts/setup_sdk.sh
 
