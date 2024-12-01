@@ -1,8 +1,10 @@
 name: "Build PojavLauncher Daily ☀️"
 
 on:
+  # A daily dose of progress and positivity 🌸
   schedule:
     - cron: '0 0 * * *'  # A new day, a new adventure! 🌅
+  # For those who can't wait—just press the button! 🎉
   workflow_dispatch: 
 
 jobs:
@@ -18,60 +20,35 @@ jobs:
       - name: "🏡 Start Fresh"
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1  # Only the essentials! 🎒
+          fetch-depth: 1  # No baggage, just the essentials! 🎒
 
-      # 🌟 Set up repository details
-      - name: "📂 Prepare Repository Details"
+      - name: "🌟 Clone Repository and Extract Commit Info"
         run: |
-          REPO_URL="https://github.com/PojavLauncherTeam/PojavLauncher.git"
-          REPO_DIR="pojav"
-          echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
-          echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
+          ./scripts/pojav/clone_and_extract.sh
 
-      - name: "🌟 Clone Repository"
-        run: |
-          echo "Cloning $REPO_URL into $REPO_DIR... 🌀"
-          git clone $REPO_URL --depth 1 $REPO_DIR
-          echo "Repository cloned successfully! 📦"
-
-      - name: "📝 Extract Commit Details"
-        run: |
-          cd $REPO_DIR
-          SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
-          CURRENT_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
-          CURRENT_COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
-          CURRENT_COMMIT_DATE=$(git log -1 --pretty=format:"%cd" --date=short)
-          echo "Commit Details: 📝"
-          echo "  Short Hash: $SHORT_COMMIT_HASH"
-          echo "  Message: $CURRENT_COMMIT_MSG"
-          echo "  Author: $CURRENT_COMMIT_AUTHOR"
-          echo "  Date: $CURRENT_COMMIT_DATE"
-          echo "SHORT_COMMIT_HASH=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
-          echo "CURRENT_COMMIT_MSG=$CURRENT_COMMIT_MSG" >> $GITHUB_ENV
-          echo "CURRENT_COMMIT_AUTHOR=$CURRENT_COMMIT_AUTHOR" >> $GITHUB_ENV
-          echo "CURRENT_COMMIT_DATE=$CURRENT_COMMIT_DATE" >> $GITHUB_ENV
-
-      # 🔄 Compare the current and previous builds
-      - name: "🔄 Compare Commit Hashes"
+      - name: "🔍 Retrieve Latest Release Commit Hash"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Checking for previous builds... 🕵️‍♀️"
+          echo "Looking for previous build info... 🕵️‍♂️"
           gh release download --repo arctlite/apps-ci --pattern "commit_hash.txt" --dir ./release_info || echo "No previous build info found! Starting fresh. 🌱"
 
           if [ -f ./release_info/commit_hash.txt ]; then
             PREVIOUS_COMMIT_HASH=$(cat ./release_info/commit_hash.txt)
             echo "Found previous commit hash: $PREVIOUS_COMMIT_HASH 🗂️"
+            echo "PREVIOUS_COMMIT_HASH=$PREVIOUS_COMMIT_HASH" >> $GITHUB_ENV
           else
             echo "No previous commit hash. It's a clean start! 🌟"
-            PREVIOUS_COMMIT_HASH=""
+            echo "PREVIOUS_COMMIT_HASH=" >> $GITHUB_ENV
           fi
 
-          if [ "$PREVIOUS_COMMIT_HASH" == "$SHORT_COMMIT_HASH" ]; then
+      - name: "🔄 Compare Commit Hashes"
+        run: |
+          if [ "$PREVIOUS_COMMIT_HASH" == "$CURRENT_COMMIT_HASH" ]; then
             echo "No changes detected since the last build. Take the day off! 🌴"
             exit 1  # Exiting gracefully to save resources
           else
-            echo "New changes spotted—let's get to work! 🛠️"
+            echo "New changes spotted — let's get to work! 🛠️"
           fi
 
       - name: "🌿 Brew Some Java (JDK 17)"
@@ -80,11 +57,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: "🛠️ Setting Up the Toolshed (Android SDK)"
+        run: ./scripts/pojav/setup_sdk.sh
+
+      # ✂️ Apply patches to make everything smooth
+      - name: "✂️ Apply Patches"
+        run: |
+          cd pojav
+          patch -p1 < ../patches/PojavLauncher/splitapk.patch
+          echo "Patch applied! Smooth sailing ahead. ⛵"
+
       - name: "🛠️ Build APKs"
         run: |
-          cd $REPO_DIR
+          cd pojav
           ../scripts/pojav/build_apks.sh
-          echo "APKs built to perfection! 🏗️"
+          echo "APKs built to perfection! 🏗️✨"
 
       - name: "🖋️ Sign APKs"
         env:
@@ -93,7 +80,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          cd $REPO_DIR
+          cd pojav
           ../scripts/pojav/sign_apks.sh
           echo "Signed, sealed, and ready to deliver! 📜📦"
 
@@ -101,17 +88,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Creating a shiny new release! ✨"
-          TAG_NAME="pojavlauncher-${{ env.SHORT_COMMIT_HASH }}"
+          # Dynamically generate the tag using the shortened commit hash
+          APP_NAME="pojavlauncher"
+          SHORT_COMMIT_HASH=${CURRENT_COMMIT_HASH:0:7}
+          TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
+          echo "Using tag: $TAG_NAME"
+
           gh release create "$TAG_NAME" \
-            --title "PojavLauncher Build (${TAG_NAME})" \
-            --notes "✨ Automated build of PojavLauncher. ✨
+            --title "${APP_NAME} Build (${TAG_NAME})" \
+            --notes "✨ Automated build of ${APP_NAME}. ✨
 
             **Commit Details**
-            - **Hash**: ${{ env.SHORT_COMMIT_HASH }}
-            - **Message**: ${{ env.CURRENT_COMMIT_MSG }}
-            - **Author**: ${{ env.CURRENT_COMMIT_AUTHOR }}
-            - **Date**: ${{ env.CURRENT_COMMIT_DATE }}" \
+            - **Hash**: $CURRENT_COMMIT_HASH
+            - **Message**: $CURRENT_COMMIT_MSG
+            - **Author**: $CURRENT_COMMIT_AUTHOR
+            - **Date**: $CURRENT_COMMIT_DATE" \
             --target main
 
       - name: "📤 Upload Each APK to Release"
@@ -119,8 +110,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Sending the APKs off to their new home! 🏠"
-          for apk in $REPO_DIR/app_pojavlauncher/build/outputs/apk/release/*.apk; do
-            gh release upload "pojavlauncher-${{ env.SHORT_COMMIT_HASH }}" "$apk"
+          for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed.apk; do
+            gh release upload "$TAG_NAME" "$apk"
           done
 
       - name: "📤 Upload Commit Hash to Release"
@@ -128,8 +119,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Saving the commit hash for posterity. 📖"
-          echo ${{ env.SHORT_COMMIT_HASH }} > commit_hash.txt
-          gh release upload "pojavlauncher-${{ env.SHORT_COMMIT_HASH }}" "commit_hash.txt"
+          echo $CURRENT_COMMIT_HASH > commit_hash.txt
+          gh release upload "$TAG_NAME" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
 
       - name: "📤 Sharing the Results (Discord)"
@@ -139,7 +130,7 @@ jobs:
           GITHUB_BRANCH: ${{ github.ref_name }}
           GITHUB_COMMIT: ${{ github.sha }}
         run: |
-          cd $REPO_DIR
+          cd pojav
           ../scripts/pojav/discord_upload.sh
           echo "Results shared with the world—mission accomplished! 🌍"
 
