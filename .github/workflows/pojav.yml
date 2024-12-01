@@ -58,14 +58,7 @@ jobs:
           java-version: '17'
 
       - name: "🛠️ Setting Up the Toolshed (Android SDK)"
-        run: ./scripts/pojav/setup_sdk.sh
-
-      # ✂️ Apply patches to make everything smooth
-      - name: "✂️ Apply Patches"
-        run: |
-          cd pojav
-          patch -p1 < ../patches/PojavLauncher/splitapk.patch
-          echo "Patch applied! Smooth sailing ahead. ⛵"
+        run: ./scripts/setup_sdk.sh
 
       - name: "🛠️ Build APKs"
         run: |
