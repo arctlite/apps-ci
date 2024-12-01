@@ -146,7 +146,7 @@ jobs:
           TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Sending the APKs off to their new home! 🏠"
           for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*.apk*; do
-            gh release upload "$TAG_NAME" "$apk"
+            gh release upload "$TAG_NAME" -- "$apk"
           done
 
       - name: "📤 Upload Commit Hash to Release"
@@ -157,6 +157,6 @@ jobs:
           TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Saving the commit hash for posterity. 📖"
           echo $CURRENT_COMMIT_HASH > commit_hash.txt
-          gh release upload "$TAG_NAME" "commit_hash.txt"
+          gh release upload "$TAG_NAME" -- "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
 
