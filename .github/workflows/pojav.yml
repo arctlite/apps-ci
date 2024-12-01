@@ -145,7 +145,7 @@ jobs:
           SHORT_COMMIT_HASH=${CURRENT_COMMIT_HASH:0:7}
           TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Sending the APKs off to their new home! 🏠"
-            gh release upload "$TAG_NAME" -- "pojav/app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-signed.apk" --clobber
+            gh release upload "$TAG_NAME" "pojav/app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-signed.apk" --clobber
           done
 
       - name: "📤 Upload Commit Hash to Release"
@@ -156,6 +156,6 @@ jobs:
           TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Saving the commit hash for posterity. 📖"
           echo $CURRENT_COMMIT_HASH > commit_hash.txt
-          gh release upload "$TAG_NAME" -- "commit_hash.txt" --clobber
+          gh release upload "$TAG_NAME" "commit_hash.txt" --clobber
           echo "Commit hash uploaded successfully! 📝"
 
