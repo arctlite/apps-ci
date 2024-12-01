@@ -1,11 +1,9 @@
 name: "Build PojavLauncher Daily ☀️"
 
 on:
-  # A daily dose of progress and positivity 🌸
   schedule:
     - cron: '0 0 * * *'  # A new day, a new adventure! 🌅
-  # For those who can't wait—just press the button! 🎉
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
@@ -71,15 +69,19 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yml
-          path: pojav/app_pojavlauncher/src/main/assets/components/jre-new                                                                          workflow_conclusion: success
-          repo: PojavLauncherTeam/android-openjdk-build-multiarch           branch: buildjre17-21
+          path: pojav/app_pojavlauncher/src/main/assets/components/jre-new
+          workflow_conclusion: success
+          repo: PojavLauncherTeam/android-openjdk-build-multiarch
+          branch: buildjre17-21
           name: jre17-pojav
 
-      - name: Get JRE21                                                   uses: dawidd6/action-download-artifact@v2
+      - name: Get JRE21
+        uses: dawidd6/action-download-artifact@v2
         with:
           workflow: build.yml
           path: pojav/app_pojavlauncher/src/main/assets/components/jre-21
-          workflow_conclusion: success                                      repo: PojavLauncherTeam/android-openjdk-build-multiarch
+          workflow_conclusion: success
+          repo: PojavLauncherTeam/android-openjdk-build-multiarch
           branch: buildjre17-21
           name: jre21-pojav
 
@@ -91,8 +93,9 @@ jobs:
         run: |
           cd pojav
           ./scripts/languagelist_updater.sh
-                                                                            mkdir out
-          # Build JRE JAR files (security manager, etc...)                  gradle :jre_lwjgl3glfw:build --no-daemon
+          mkdir out
+          # Build JRE JAR files (security manager, etc...)
+          gradle :jre_lwjgl3glfw:build --no-daemon
 
       - name: "🛠️ Setting Up the Toolshed (Android SDK)"
         run: ./scripts/setup_sdk.sh
@@ -152,3 +155,4 @@ jobs:
           echo $CURRENT_COMMIT_HASH > commit_hash.txt
           gh release upload "$TAG_NAME" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
+
