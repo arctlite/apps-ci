@@ -115,15 +115,3 @@ jobs:
           echo $CURRENT_COMMIT_HASH > commit_hash.txt
           gh release upload "$TAG_NAME" "commit_hash.txt"
           echo "Commit hash uploaded successfully! 📝"
-
-      - name: "📤 Sharing the Results (Discord)"
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_REPO: ${{ github.repository }}
-          GITHUB_BRANCH: ${{ github.ref_name }}
-          GITHUB_COMMIT: ${{ github.sha }}
-        run: |
-          cd pojav
-          ../scripts/pojav/discord_upload.sh
-          echo "Results shared with the world—mission accomplished! 🌍"
-
