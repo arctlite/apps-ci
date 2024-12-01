@@ -142,6 +142,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SHORT_COMMIT_HASH=${CURRENT_COMMIT_HASH:0:7}
+          TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Sending the APKs off to their new home! 🏠"
           for apk in pojav/app_pojavlauncher/build/outputs/apk/release/*-signed.apk; do
             gh release upload "$TAG_NAME" "$apk"
@@ -151,6 +153,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SHORT_COMMIT_HASH=${CURRENT_COMMIT_HASH:0:7}
+          TAG_NAME="${APP_NAME}-${SHORT_COMMIT_HASH}"
           echo "Saving the commit hash for posterity. 📖"
           echo $CURRENT_COMMIT_HASH > commit_hash.txt
           gh release upload "$TAG_NAME" "commit_hash.txt"
